@@ -1,0 +1,87 @@
+<div class="p-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold">Klienci</h1>
+    <a routerLink="/clients/new" class="btn btn-primary">+ Dodaj klienta</a>
+  </div>
+
+  <div class="flex flex-wrap gap-4 mb-6">
+    <div class="form-control">
+      <label class="label"><span class="label-text">Szukaj</span></label>
+      <div class="join">
+        <input
+          type="text"
+          class="input input-bordered join-item"
+          placeholder="Imię lub nazwisko..."
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="loadClients()" />
+        <button class="btn btn-primary join-item" (click)="loadClients()">Szukaj</button>
+      </div>
+    </div>
+
+    <div class="form-control">
+      <label class="label"><span class="label-text">Sortuj po</span></label>
+      <select class="select select-bordered select-sm" [(ngModel)]="sortField" (change)="loadClients()">
+        <option value="lastName">Nazwisku</option>
+        <option value="firstName">Imieniu</option>
+        <option value="createdAt">Dacie dodania</option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="flex justify-center py-12">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="table table-zebra w-full">
+        <thead>
+          <tr>
+            <th>Imię i nazwisko</th>
+            <th>Telefon</th>
+            <th>Email</th>
+            <th>Aktywne wyp.</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (client of clients; track client.id) {
+            <tr class="hover cursor-pointer" [routerLink]="['/clients', client.id]">
+              <td class="font-semibold">{{ fullName(client) }}</td>
+              <td>{{ client.phone || '—' }}</td>
+              <td>{{ client.email || '—' }}</td>
+              <td>
+                @if ((client.activeRentalsCount ?? 0) > 0) {
+                  <span class="badge badge-warning">{{ client.activeRentalsCount }}</span>
+                } @else {
+                  <span class="badge badge-ghost">0</span>
+                }
+              </td>
+              <td>
+                <div class="flex gap-2" (click)="$event.stopPropagation()">
+                  <a [routerLink]="['/clients', client.id, 'edit']" class="btn btn-ghost btn-xs">Edytuj</a>
+                  <button class="btn btn-error btn-xs" (click)="openDeleteModal(client.id)">Usuń</button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center text-base-content/50 py-8">Brak klientów</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<app-confirm-modal
+  [isOpen]="deleteModalOpen"
+  title="Usuń klienta"
+  message="Czy na pewno chcesz usunąć tego klienta?"
+  confirmLabel="Usuń"
+  (confirmed)="confirmDelete()"
+  (cancelled)="cancelDelete()"
+/>
+
+

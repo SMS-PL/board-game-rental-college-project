@@ -1,0 +1,85 @@
+<div class="p-6 max-w-2xl mx-auto">
+  <div class="flex items-center gap-4 mb-6">
+    <button class="btn btn-ghost btn-sm" routerLink="/rentals">← Wróć</button>
+    <h1 class="text-3xl font-bold">Wydaj grę</h1>
+  </div>
+
+  @if (isLoading) {
+    <div class="flex justify-center py-12">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+  } @else {
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        @if (errorMessage) {
+          <div class="alert alert-error mb-4">
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="form-control mb-4">
+            <label class="label"><span class="label-text font-medium">Klient *</span></label>
+            <select formControlName="clientId" class="select select-bordered">
+              <option value="">-- wybierz klienta --</option>
+              @for (client of clients; track client.id) {
+                <option [value]="client.id">{{ clientLabel(client) }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-control mb-4">
+            <label class="label"><span class="label-text font-medium">Gra *</span></label>
+            <select formControlName="gameId" class="select select-bordered">
+              <option value="">-- wybierz grę --</option>
+              @for (game of games; track game.id) {
+                <option [value]="game.id">{{ game.title }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-control mb-4">
+            <label class="label"><span class="label-text font-medium">Egzemplarz *</span></label>
+            <select formControlName="gameCopyId" class="select select-bordered" [disabled]="!form.get('gameId')?.value">
+              <option value="">-- wybierz egzemplarz --</option>
+              @for (copy of availableCopies; track copy.id) {
+                <option [value]="copy.id">#{{ copy.copyNumber }} – {{ copy.condition }}</option>
+              }
+            </select>
+            @if (form.get('gameId')?.value && availableCopies.length === 0) {
+              <label class="label"><span class="label-text-alt text-warning">Brak dostępnych egzemplarzy</span></label>
+            }
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="form-control">
+              <label class="label"><span class="label-text font-medium">Data wydania *</span></label>
+              <input type="date" formControlName="rentedFrom" class="input input-bordered" />
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text font-medium">Planowany zwrot *</span></label>
+              <input type="date" formControlName="dueTo" class="input input-bordered" [min]="form.get('rentedFrom')?.value" />
+            </div>
+          </div>
+
+          <div class="form-control mb-6">
+            <label class="label"><span class="label-text font-medium">Uwagi</span></label>
+            <textarea formControlName="notes" class="textarea textarea-bordered" placeholder="Opcjonalne uwagi..."></textarea>
+          </div>
+
+          <div class="flex gap-3 justify-end">
+            <button type="button" class="btn btn-ghost" routerLink="/rentals">Anuluj</button>
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSaving">
+              @if (isSaving) {
+                <span class="loading loading-spinner loading-sm"></span>
+              } @else {
+                Wydaj grę
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
+

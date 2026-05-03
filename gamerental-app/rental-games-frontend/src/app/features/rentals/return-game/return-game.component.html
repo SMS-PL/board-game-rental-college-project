@@ -1,0 +1,61 @@
+<div class="p-6 max-w-2xl mx-auto">
+  <div class="flex items-center gap-4 mb-6">
+    <button class="btn btn-ghost btn-sm" routerLink="/rentals">← Wróć</button>
+    <h1 class="text-3xl font-bold">Przyjmij zwrot</h1>
+  </div>
+
+  @if (isLoading) {
+    <div class="flex justify-center py-12">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+  } @else if (rental) {
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Szczegóły wypożyczenia</h2>
+
+        <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
+          <div><span class="font-medium">Gra:</span> {{ rental.gameTitle }}</div>
+          <div><span class="font-medium">Egzemplarz:</span> #{{ rental.gameCopyNumber }}</div>
+          <div><span class="font-medium">Klient:</span> {{ rental.clientName }}</div>
+          <div><span class="font-medium">Wypożyczono:</span> {{ rental.rentedFrom | date:'dd.MM.yyyy' }}</div>
+          <div><span class="font-medium">Termin zwrotu:</span> {{ rental.dueTo | date:'dd.MM.yyyy' }}</div>
+          @if (rental.notes) {
+            <div class="col-span-2"><span class="font-medium">Uwagi:</span> {{ rental.notes }}</div>
+          }
+        </div>
+
+        <div class="divider"></div>
+
+        @if (errorMessage) {
+          <div class="alert alert-error mb-4">
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="form-control mb-6">
+            <label class="label"><span class="label-text font-medium">Stan egzemplarza przy zwrocie *</span></label>
+            <select formControlName="conditionOnReturn" class="select select-bordered">
+              <option value="">-- wybierz stan --</option>
+              @for (condition of copyConditions; track condition) {
+                <option [value]="condition">{{ conditionLabel(condition) }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="flex gap-3 justify-end">
+            <button type="button" class="btn btn-ghost" routerLink="/rentals">Anuluj</button>
+            <button type="submit" class="btn btn-success" [disabled]="form.invalid || isSaving">
+              @if (isSaving) {
+                <span class="loading loading-spinner loading-sm"></span>
+              } @else {
+                Potwierdź zwrot
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
+

@@ -1,0 +1,38 @@
+<div class="min-h-screen flex items-center justify-center bg-base-200">
+  <div class="card w-full max-w-sm bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title text-2xl justify-center mb-4">🎲 Logowanie</h2>
+
+      @if (errorMessage) {
+        <div class="alert alert-error">
+          <span>{{ errorMessage }}</span>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-control mb-3">
+          <label class="label"><span class="label-text">Login</span></label>
+          <input type="text" formControlName="username" class="input input-bordered" placeholder="login" />
+        </div>
+
+        <div class="form-control mb-5">
+          <label class="label"><span class="label-text">Hasło</span></label>
+          <input type="password" formControlName="password" class="input input-bordered" placeholder="hasło" />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full" [disabled]="isLoading">
+          @if (isLoading) {
+            <span class="loading loading-spinner loading-sm"></span>
+          } @else {
+            Zaloguj się
+          }
+        </button>
+      </form>
+
+      <div class="divider">lub</div>
+
+      <a routerLink="/register" class="btn btn-ghost w-full">Zarejestruj się</a>
+    </div>
+  </div>
+</div>
+
