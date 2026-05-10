@@ -3,9 +3,9 @@ spring:
     name: gamerental
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/rental-game-db
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:rental-game-db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -23,5 +23,5 @@ spring:
 
 app:
   jwt:
-    secret: "Z2FtZXJlbnRhbC1zZWNyZXQta2V5LWZvci1qd3QtaHMyNTYtYXV0aGVudGljYXRpb24="
+    secret: "${JWT_SECRET:Z2FtZXJlbnRhbC1zZWNyZXQta2V5LWZvci1qd3QtaHMyNTYtYXV0aGVudGljYXRpb24=}"
     expiration-ms: 86400000

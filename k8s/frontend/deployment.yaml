@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rental-frontend
+  namespace: rental-games
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rental-frontend
+  template:
+    metadata:
+      labels:
+        app: rental-frontend
+    spec:
+      containers:
+        - name: rental-frontend
+          image: rental-frontend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+

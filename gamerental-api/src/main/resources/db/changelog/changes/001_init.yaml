@@ -1,0 +1,225 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-init
+      author: system
+      changes:
+        - createTable:
+            tableName: app_users
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: games
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+                  defaultValue: ''
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_copies
+                  type: INT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: game_tags
+            columns:
+              - column:
+                  name: game_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_game_tags_game
+                    references: games(id)
+                    deleteCascade: true
+              - column:
+                  name: tag
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: game_tags
+            columnNames: game_id, tag
+            constraintName: pk_game_tags
+
+        - createTable:
+            tableName: game_copies
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: game_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_game_copies_game
+                    references: games(id)
+                    deleteCascade: true
+              - column:
+                  name: copy_number
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: condition
+                  type: VARCHAR(20)
+                  defaultValue: NEW
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_available
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: game_copies
+            columnNames: game_id, copy_number
+            constraintName: uq_game_copies_game_copy_number
+
+        - createTable:
+            tableName: clients
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone
+                  type: VARCHAR(50)
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: rentals
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: game_copy_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_rentals_game_copy
+                    references: game_copies(id)
+              - column:
+                  name: client_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_rentals_client
+                    references: clients(id)
+              - column:
+                  name: rented_from
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: due_to
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: returned_at
+                  type: DATE
+              - column:
+                  name: condition_on_return
+                  type: VARCHAR(20)
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: ACTIVE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: notes
+                  type: TEXT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+

@@ -6,6 +6,7 @@ import sms.pollub.gamerental.game.repository.GameCopyRepository
 import sms.pollub.gamerental.rental.commands.ReturnGameCommand
 import sms.pollub.gamerental.rental.enums.RentalStatus
 import sms.pollub.gamerental.rental.repository.RentalRepository
+import java.time.LocalDate
 import java.util.UUID
 
 @Component
@@ -22,7 +23,7 @@ class ReturnGameCommandHandler(
             throw IllegalStateException("Rental '$rentalId' has already been returned")
         }
 
-        rental.returnedAt = command.returnedAt
+        rental.returnedAt = command.returnedAt ?: LocalDate.now()
         rental.conditionOnReturn = command.conditionOnReturn
         rental.status = RentalStatus.RETURNED
 

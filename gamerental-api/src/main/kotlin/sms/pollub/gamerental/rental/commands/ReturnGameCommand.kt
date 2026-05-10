@@ -6,6 +6,6 @@ import java.time.LocalDate
 
 data class ReturnGameCommand(
     @field:NotNull val conditionOnReturn: CopyCondition,
-    val returnedAt: LocalDate = LocalDate.now()
+    val returnedAt: LocalDate? = null
 )
 
