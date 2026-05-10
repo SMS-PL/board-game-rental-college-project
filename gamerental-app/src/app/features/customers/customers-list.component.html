@@ -1,0 +1,123 @@
+<app-navbar></app-navbar>
+<div class="container mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Klienci</h1>
+    <button class="btn btn-primary" (click)="openAddModal()">+ Dodaj klienta</button>
+  </div>
+
+  <div *ngIf="successMsg" class="alert alert-success mb-4"><span>{{ successMsg }}</span></div>
+  <div *ngIf="errorMsg" class="alert alert-error mb-4"><span>{{ errorMsg }}</span></div>
+
+  <div class="form-control mb-4 max-w-sm">
+    <input type="text" [(ngModel)]="search" class="input input-bordered" placeholder="Szukaj klienta..." />
+  </div>
+
+  <div class="overflow-x-auto rounded-box shadow">
+    <table class="table table-zebra w-full bg-base-100">
+      <thead>
+        <tr><th>ID</th><th>Imię i nazwisko</th><th>Email</th><th>Telefon</th><th>Dołączył</th><th>Akcje</th></tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="loading">
+          <tr *ngFor="let i of [1,2,3,4,5]">
+            <td><div class="skeleton h-4 w-6"></div></td>
+            <td><div class="skeleton h-4 w-36"></div></td>
+            <td><div class="skeleton h-4 w-44"></div></td>
+            <td><div class="skeleton h-4 w-24"></div></td>
+            <td><div class="skeleton h-4 w-20"></div></td>
+            <td><div class="flex gap-1"><div class="skeleton h-6 w-14"></div><div class="skeleton h-6 w-10"></div></div></td>
+          </tr>
+        </ng-container>
+        <ng-container *ngIf="!loading">
+          <tr *ngFor="let c of filtered">
+            <td>{{ c.id }}</td>
+            <td>
+              <a [routerLink]="['/customers', c.id]" class="link link-primary font-semibold">
+                {{ c.firstName }} {{ c.lastName }}
+              </a>
+            </td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.phone ?? '—' }}</td>
+            <td>{{ c.createdAt | date:'dd.MM.yyyy' }}</td>
+            <td>
+              <button class="btn btn-xs btn-outline mr-1" (click)="openEdit(c)">Edytuj</button>
+              <button class="btn btn-xs btn-error" (click)="deleteCustomer(c.id)">Usuń</button>
+            </td>
+          </tr>
+          <tr *ngIf="filtered.length === 0">
+            <td colspan="6" class="text-center text-base-content/50 py-8">Brak klientów — dodaj pierwszego</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Modal -->
+<dialog id="addCustomerModal" class="modal">
+  <div class="modal-box w-11/12 max-w-md">
+    <h3 class="text-xl font-bold mb-1">👤 Dodaj klienta</h3>
+    <p class="text-base-content/50 text-sm mb-5">Wprowadź dane nowego klienta wypożyczalni</p>
+    <form (ngSubmit)="createCustomer()">
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Imię <span class="text-error">*</span></span></label>
+          <input type="text" [(ngModel)]="form.firstName" name="firstName" class="input input-bordered w-full" placeholder="Jan" required />
+        </div>
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Nazwisko <span class="text-error">*</span></span></label>
+          <input type="text" [(ngModel)]="form.lastName" name="lastName" class="input input-bordered w-full" placeholder="Kowalski" required />
+        </div>
+      </div>
+      <div class="form-control mb-3">
+        <label class="label pb-1"><span class="label-text font-medium">Email <span class="text-error">*</span></span></label>
+        <input type="email" [(ngModel)]="form.email" name="email" class="input input-bordered w-full" placeholder="jan@przykład.pl" required />
+      </div>
+      <div class="form-control mb-4">
+        <label class="label pb-1"><span class="label-text font-medium">Telefon <span class="text-base-content/40 font-normal text-xs">(opcjonalnie)</span></span></label>
+        <input type="tel" [(ngModel)]="form.phone" name="phone" class="input input-bordered w-full" placeholder="+48 600 000 000" />
+      </div>
+      <div class="divider my-2"></div>
+      <div class="modal-action mt-0">
+        <button type="button" class="btn btn-ghost" (click)="closeModal('addCustomerModal')">Anuluj</button>
+        <button type="submit" class="btn btn-primary">Dodaj klienta</button>
+      </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<!-- Edit Modal -->
+<dialog id="editCustomerModal" class="modal">
+  <div class="modal-box w-11/12 max-w-md">
+    <h3 class="text-xl font-bold mb-1">✏️ Edytuj klienta</h3>
+    <p class="text-base-content/50 text-sm mb-5">Zmień dane wybranego klienta</p>
+    <form (ngSubmit)="updateCustomer()">
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Imię <span class="text-error">*</span></span></label>
+          <input type="text" [(ngModel)]="editForm.firstName" name="firstName" class="input input-bordered w-full" required />
+        </div>
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Nazwisko <span class="text-error">*</span></span></label>
+          <input type="text" [(ngModel)]="editForm.lastName" name="lastName" class="input input-bordered w-full" required />
+        </div>
+      </div>
+      <div class="form-control mb-3">
+        <label class="label pb-1"><span class="label-text font-medium">Email <span class="text-error">*</span></span></label>
+        <input type="email" [(ngModel)]="editForm.email" name="email" class="input input-bordered w-full" required />
+      </div>
+      <div class="form-control mb-4">
+        <label class="label pb-1"><span class="label-text font-medium">Telefon <span class="text-base-content/40 font-normal text-xs">(opcjonalnie)</span></span></label>
+        <input type="tel" [(ngModel)]="editForm.phone" name="phone" class="input input-bordered w-full" />
+      </div>
+      <div class="divider my-2"></div>
+      <div class="modal-action mt-0">
+        <button type="button" class="btn btn-ghost" (click)="closeModal('editCustomerModal')">Anuluj</button>
+        <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+      </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+

@@ -1,0 +1,44 @@
+<div class="min-h-screen flex items-center justify-center bg-base-200">
+  <div class="card w-full max-w-sm bg-base-100 shadow-2xl">
+    <div class="card-body gap-0 p-8">
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-3">🎲</div>
+        <h1 class="text-2xl font-bold">Utwórz konto</h1>
+        <p class="text-base-content/50 text-sm mt-1">Zarejestruj się w systemie</p>
+      </div>
+
+      <div *ngIf="error" class="alert alert-error mb-4 py-2 text-sm">
+        <span>{{ error }}</span>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Nazwa użytkownika</span></label>
+          <input type="text" [(ngModel)]="username" name="username"
+                 class="input input-bordered w-full" placeholder="username" required
+                 [disabled]="loading" autocomplete="username" />
+        </div>
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Hasło <span class="text-base-content/40 font-normal text-xs">(min. 6 znaków)</span></span></label>
+          <input type="password" [(ngModel)]="password" name="password"
+                 class="input input-bordered w-full" placeholder="••••••••" required
+                 [disabled]="loading" autocomplete="new-password" />
+        </div>
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Powtórz hasło</span></label>
+          <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword"
+                 class="input input-bordered w-full" placeholder="••••••••" required
+                 [disabled]="loading" autocomplete="new-password" />
+        </div>
+        <button type="submit" class="btn btn-primary w-full mt-1" [disabled]="loading">
+          <span *ngIf="loading" class="loading loading-spinner loading-sm"></span>
+          {{ loading ? 'Rejestracja...' : 'Zarejestruj się' }}
+        </button>
+      </form>
+
+      <div class="divider text-xs text-base-content/30 my-4">masz już konto?</div>
+      <a routerLink="/login" class="btn btn-outline btn-sm w-full">Zaloguj się</a>
+    </div>
+  </div>
+</div>
+

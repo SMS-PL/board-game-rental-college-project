@@ -1,0 +1,68 @@
+<app-navbar></app-navbar>
+<div class="container mx-auto p-6">
+  <h1 class="text-3xl font-bold mb-6">Dashboard</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <ng-container *ngIf="loadingStats">
+      <div class="stat bg-base-100 rounded-box shadow" *ngFor="let i of [1,2,3,4]">
+        <div class="skeleton h-8 w-8 rounded-full mb-2"></div>
+        <div class="skeleton h-3 w-24 mb-2"></div>
+        <div class="skeleton h-8 w-16"></div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!loadingStats">
+      <div class="stat bg-base-100 rounded-box shadow">
+        <div class="stat-figure text-primary text-3xl">🎮</div>
+        <div class="stat-title">Gry w katalogu</div>
+        <div class="stat-value text-primary">{{ stats?.totalGames ?? 0 }}</div>
+      </div>
+      <div class="stat bg-base-100 rounded-box shadow">
+        <div class="stat-figure text-secondary text-3xl">📦</div>
+        <div class="stat-title">Egzemplarze</div>
+        <div class="stat-value text-secondary">{{ stats?.totalCopies ?? 0 }}</div>
+      </div>
+      <div class="stat bg-base-100 rounded-box shadow">
+        <div class="stat-figure text-accent text-3xl">👥</div>
+        <div class="stat-title">Klienci</div>
+        <div class="stat-value text-accent">{{ stats?.totalCustomers ?? 0 }}</div>
+      </div>
+      <div class="stat bg-base-100 rounded-box shadow">
+        <div class="stat-figure text-warning text-3xl">📋</div>
+        <div class="stat-title">Aktywne wypożyczenia</div>
+        <div class="stat-value text-warning">{{ stats?.activeRentals ?? 0 }}</div>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">🏆 Top 5 najpopularniejszych gier</h2>
+      <ng-container *ngIf="loadingGames">
+        <div *ngFor="let i of [1,2,3,4,5]" class="flex items-center gap-4 py-2 border-b border-base-200">
+          <div class="skeleton h-4 w-4"></div>
+          <div class="skeleton h-4 w-48 flex-1"></div>
+          <div class="skeleton h-5 w-10 rounded-full"></div>
+        </div>
+      </ng-container>
+      <table class="table" *ngIf="!loadingGames && popularGames.length > 0">
+        <thead>
+          <tr><th>#</th><th>Tytuł</th><th>Liczba wypożyczeń</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let g of popularGames; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td><a [routerLink]="['/games', g.gameId]" class="link link-primary">{{ g.title }}</a></td>
+            <td><span class="badge badge-primary">{{ g.rentalCount }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!loadingGames && popularGames.length === 0" class="text-base-content/50 py-4">Brak danych</div>
+    </div>
+  </div>
+
+  <div class="flex gap-4 mt-6">
+    <a routerLink="/rentals/new" class="btn btn-primary">+ Nowe wypożyczenie</a>
+    <a routerLink="/rentals" class="btn btn-outline">Lista wypożyczeń</a>
+  </div>
+</div>
+

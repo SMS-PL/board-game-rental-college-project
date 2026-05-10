@@ -1,0 +1,178 @@
+<app-navbar></app-navbar>
+<div class="container mx-auto p-6">
+  <a routerLink="/games" class="btn btn-ghost btn-sm mb-4">← Wróć do katalogu</a>
+
+  <div *ngIf="!game" class="flex justify-center mt-20">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+
+  <ng-container *ngIf="game">
+    <!-- Game info card -->
+    <div class="card bg-base-100 shadow-xl mb-6">
+      <div class="card-body">
+        <div class="flex justify-between items-start flex-wrap gap-2">
+          <div>
+            <h1 class="text-3xl font-bold">{{ game.title }}</h1>
+            <div class="flex flex-wrap gap-1 mt-2">
+              <span *ngFor="let tag of game.tags" class="badge badge-primary">{{ tagLabel(tag) }}</span>
+            </div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <div class="stat bg-base-200 rounded-box px-4 py-2 text-center">
+              <div class="stat-title text-xs">Dostępne</div>
+              <div class="stat-value text-lg" [class.text-success]="availableCount() > 0" [class.text-error]="availableCount() === 0">
+                {{ availableCount() }}/{{ game.totalCopies }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p *ngIf="game.description" class="text-base-content/70 text-sm">{{ game.description }}</p>
+        <p class="text-base-content/50 text-xs mt-2">Dodano: {{ game.createdAt | date:'dd.MM.yyyy' }}</p>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div *ngIf="successMsg" class="alert alert-success mb-4"><span>{{ successMsg }}</span></div>
+    <div *ngIf="errorMsg" class="alert alert-error mb-4"><span>{{ errorMsg }}</span></div>
+
+    <!-- Copies section -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <div class="flex justify-between items-center mb-2 flex-wrap gap-2">
+          <h2 class="card-title">📦 Egzemplarze</h2>
+          <div *ngIf="!editingCopies" class="flex items-center gap-2">
+            <span class="text-sm text-base-content/50">Łącznie: {{ game.totalCopies }}</span>
+            <button class="btn btn-sm btn-outline" (click)="openSetCopies()">Zmień liczbę egzemplarzy</button>
+          </div>
+          <div *ngIf="editingCopies" class="flex items-center gap-2">
+            <span class="text-sm font-medium">Nowa liczba:</span>
+            <input type="number" [(ngModel)]="newTotalCopies" class="input input-bordered input-sm w-20" min="0" />
+            <button class="btn btn-sm btn-success" (click)="saveCopies()">Zapisz</button>
+            <button class="btn btn-sm btn-ghost" (click)="cancelEditCopies()">Anuluj</button>
+          </div>
+        </div>
+
+        <!-- Empty -->
+        <div *ngIf="game.copies.length === 0" class="text-center text-base-content/40 py-12">
+          Brak egzemplarzy — kliknij "Zmień liczbę egzemplarzy" aby dodać
+        </div>
+
+        <!-- Copies list -->
+        <div *ngIf="game.copies.length > 0" class="space-y-3 mt-2">
+          <div *ngFor="let c of game.copies"
+               class="border rounded-xl transition-colors"
+               [class.border-success]="c.isAvailable"
+               [class.border-error]="!c.isAvailable">
+
+            <!-- Copy header row -->
+            <div class="flex items-center justify-between px-4 py-3 cursor-pointer"
+                 (click)="toggleCopy(c.id)">
+              <div class="flex items-center gap-3 flex-wrap">
+                <span class="font-bold text-base-content/60 text-sm">#{{ c.copyNumber }}</span>
+
+                <span class="badge"
+                  [class.badge-success]="c.condition === 'NEW'"
+                  [class.badge-warning]="c.condition === 'GOOD'"
+                  [class.badge-neutral]="c.condition === 'WORN'"
+                  [class.badge-error]="c.condition === 'DAMAGED'">
+                  {{ conditionLabel(c.condition) }}
+                </span>
+
+                <span class="badge" [class.badge-success]="c.isAvailable" [class.badge-error]="!c.isAvailable">
+                  {{ c.isAvailable ? 'Dostępny' : 'Wypożyczony' }}
+                </span>
+
+                <ng-container *ngIf="!c.isAvailable && getActiveRental(c.id) as rental">
+                  <span class="text-sm text-base-content/70">
+                    → <a [routerLink]="['/customers', rental.clientId]"
+                         class="link link-primary font-medium"
+                         (click)="$event.stopPropagation()">
+                        {{ rental.clientName }}
+                      </a>
+                    <span class="text-xs text-base-content/50 ml-1">
+                      (termin: {{ rental.dueTo | date:'dd.MM.yyyy' }})
+                    </span>
+                    <span *ngIf="rental.status === 'OVERDUE'" class="badge badge-error badge-xs ml-1">Zaległe!</span>
+                  </span>
+                </ng-container>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button *ngIf="getActiveRental(c.id) as rental"
+                        class="btn btn-xs btn-success"
+                        (click)="openReturnModal(rental.id); $event.stopPropagation()">
+                  Zwróć
+                </button>
+                <svg class="w-4 h-4 text-base-content/40 transition-transform"
+                     [class.rotate-180]="expandedCopy === c.id"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Expanded: rental history -->
+            <div *ngIf="expandedCopy === c.id" class="px-4 pb-4 border-t border-base-300">
+              <p class="text-xs text-base-content/50 font-medium uppercase tracking-wide mt-3 mb-2">Historia wypożyczeń</p>
+              <div *ngIf="loadingRentals" class="skeleton h-10 w-full"></div>
+              <ng-container *ngIf="!loadingRentals">
+                <table *ngIf="getRentalsForCopy(c.id).length > 0" class="table table-xs w-full">
+                  <thead>
+                    <tr><th>Klient</th><th>Wypożyczono</th><th>Termin</th><th>Zwrócono</th><th>Stan</th><th>Status</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let r of getRentalsForCopy(c.id)">
+                      <td>
+                        <a [routerLink]="['/customers', r.clientId]" class="link link-primary text-xs">
+                          {{ r.clientName }}
+                        </a>
+                      </td>
+                      <td class="text-xs">{{ r.rentedFrom | date:'dd.MM.yyyy' }}</td>
+                      <td class="text-xs">{{ r.dueTo | date:'dd.MM.yyyy' }}</td>
+                      <td class="text-xs">{{ r.returnedAt ? (r.returnedAt | date:'dd.MM.yyyy') : '—' }}</td>
+                      <td class="text-xs">{{ r.conditionOnReturn ? conditionLabel(r.conditionOnReturn) : '—' }}</td>
+                      <td>
+                        <span class="badge badge-xs"
+                          [class.badge-warning]="r.status === 'ACTIVE'"
+                          [class.badge-error]="r.status === 'OVERDUE'"
+                          [class.badge-success]="r.status === 'RETURNED'">
+                          {{ statusLabel(r.status) }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p *ngIf="getRentalsForCopy(c.id).length === 0" class="text-xs text-base-content/40 py-2">
+                  Brak historii wypożyczeń dla tego egzemplarza
+                </p>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<!-- Return Modal -->
+<dialog id="returnModal" class="modal">
+  <div class="modal-box w-11/12 max-w-sm">
+    <h3 class="text-xl font-bold mb-1">↩️ Zwrot wypożyczenia</h3>
+    <p class="text-base-content/50 text-sm mb-5">Podaj stan egzemplarza po zwrocie</p>
+    <div class="flex flex-col gap-2 mb-5">
+      <label *ngFor="let c of conditions"
+             class="label cursor-pointer justify-start gap-3 rounded-lg border border-base-300 px-4 py-3 hover:bg-base-200 transition-colors"
+             [class.border-primary]="returnCondition === c">
+        <input type="radio" [(ngModel)]="returnCondition" [value]="c" name="gameDetailReturnCondition" class="radio radio-primary radio-sm" />
+        <span class="label-text">{{ conditionLabel(c) }}</span>
+      </label>
+    </div>
+    <div class="modal-action">
+      <button class="btn btn-ghost" (click)="closeReturnModal()">Anuluj</button>
+      <button class="btn btn-success" (click)="confirmReturn()">Potwierdź zwrot</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+

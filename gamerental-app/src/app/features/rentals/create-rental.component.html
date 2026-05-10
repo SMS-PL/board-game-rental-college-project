@@ -1,0 +1,87 @@
+<app-navbar></app-navbar>
+<div class="container mx-auto p-6 max-w-xl">
+  <a routerLink="/rentals" class="btn btn-ghost btn-sm mb-6">← Wróć do listy</a>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body gap-0">
+      <h1 class="text-2xl font-bold mb-1">📋 Nowe wypożyczenie</h1>
+      <p class="text-base-content/50 text-sm mb-6">Wybierz grę, egzemplarz, klienta i termin</p>
+
+      <div *ngIf="errorMsg" class="alert alert-error mb-5">
+        <span>{{ errorMsg }}</span>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+
+        <!-- 1. Gra -->
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Gra <span class="text-error">*</span></span></label>
+          <select [(ngModel)]="selectedGameId" name="gameId" class="select select-bordered w-full" required
+                  (ngModelChange)="onGameChange()">
+            <option value="" disabled>Wybierz grę...</option>
+            <option *ngFor="let g of games" [value]="g.id">
+              {{ g.title }} ({{ g.availableCopies }} wolne)
+            </option>
+          </select>
+        </div>
+
+        <!-- 2. Egzemplarz -->
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Egzemplarz <span class="text-error">*</span></span></label>
+          <select [(ngModel)]="form.gameCopyId" name="gameCopyId" class="select select-bordered w-full" required
+                  [disabled]="!selectedGameId || loadingCopies">
+            <option value="" disabled>
+              {{ !selectedGameId ? 'Najpierw wybierz grę...' : loadingCopies ? 'Ładowanie...' : 'Wybierz egzemplarz...' }}
+            </option>
+            <option *ngFor="let c of availableCopies" [value]="c.id">
+              Egz. #{{ c.copyNumber }} — {{ conditionLabel(c.condition) }}
+            </option>
+          </select>
+          <label class="label pt-1" *ngIf="selectedGameId && !loadingCopies && availableCopies.length === 0">
+            <span class="label-text-alt text-warning">Brak dostępnych egzemplarzy tej gry</span>
+          </label>
+        </div>
+
+        <!-- 3. Klient -->
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Klient <span class="text-error">*</span></span></label>
+          <select [(ngModel)]="form.clientId" name="clientId" class="select select-bordered w-full" required>
+            <option value="" disabled>Wybierz klienta...</option>
+            <option *ngFor="let c of customers" [value]="c.id">
+              {{ c.firstName }} {{ c.lastName }}{{ c.email ? ' — ' + c.email : '' }}
+            </option>
+          </select>
+        </div>
+
+        <!-- 4. Daty -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-control">
+            <label class="label pb-1"><span class="label-text font-medium">Data wypożyczenia <span class="text-error">*</span></span></label>
+            <input type="date" [(ngModel)]="form.rentedFrom" name="rentedFrom" class="input input-bordered w-full" required [max]="form.dueTo || ''" />
+          </div>
+          <div class="form-control">
+            <label class="label pb-1"><span class="label-text font-medium">Termin zwrotu <span class="text-error">*</span></span></label>
+            <input type="date" [(ngModel)]="form.dueTo" name="dueTo" class="input input-bordered w-full" required [min]="form.rentedFrom || today" />
+          </div>
+        </div>
+
+        <!-- 5. Notatki -->
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Notatki <span class="text-base-content/40 font-normal text-xs">(opcjonalnie)</span></span></label>
+          <textarea [(ngModel)]="form.notes" name="notes" class="textarea textarea-bordered w-full resize-none" rows="2" placeholder="Uwagi..."></textarea>
+        </div>
+
+        <div class="divider my-0"></div>
+
+        <div class="flex justify-end gap-2">
+          <a routerLink="/rentals" class="btn btn-ghost">Anuluj</a>
+          <button type="submit" class="btn btn-primary" [disabled]="loading || !isFormValid()">
+            <span *ngIf="loading" class="loading loading-spinner loading-sm"></span>
+            Utwórz wypożyczenie
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

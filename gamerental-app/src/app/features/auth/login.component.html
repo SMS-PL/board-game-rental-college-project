@@ -1,0 +1,36 @@
+<div class="min-h-screen flex items-center justify-center bg-base-200">
+  <div class="card w-full max-w-sm bg-base-100 shadow-2xl">
+    <div class="card-body gap-0 p-8">
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-3">🎲</div>
+        <h1 class="text-2xl font-bold">Wypożyczalnia Gier</h1>
+        <p class="text-base-content/50 text-sm mt-1">Zaloguj się do panelu</p>
+      </div>
+
+      <div *ngIf="error" class="alert alert-error mb-4 py-2 text-sm">
+        <span>{{ error }}</span>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Nazwa użytkownika</span></label>
+          <input type="text" [(ngModel)]="username" name="username"
+                 class="input input-bordered w-full" placeholder="username" required autocomplete="username" />
+        </div>
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Hasło</span></label>
+          <input type="password" [(ngModel)]="password" name="password"
+                 class="input input-bordered w-full" placeholder="••••••••" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary w-full mt-1" [disabled]="loading">
+          <span *ngIf="loading" class="loading loading-spinner loading-sm"></span>
+          {{ loading ? 'Logowanie...' : 'Zaloguj się' }}
+        </button>
+      </form>
+
+      <div class="divider text-xs text-base-content/30 my-4">nie masz konta?</div>
+      <a routerLink="/register" class="btn btn-outline btn-sm w-full">Zarejestruj się</a>
+    </div>
+  </div>
+</div>
+

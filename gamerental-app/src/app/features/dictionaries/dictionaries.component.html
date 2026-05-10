@@ -1,0 +1,32 @@
+<app-navbar></app-navbar>
+<div class="container mx-auto p-6">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold">Słowniki</h1>
+    <p class="text-base-content/50 text-sm mt-1">Wartości słownikowe używane w systemie</p>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title mb-1">🏷️ Tagi gier</h2>
+      <div class="overflow-x-auto">
+        <table class="table table-zebra w-full">
+          <thead>
+            <tr>
+              <th class="w-16">#</th>
+              <th class="w-48">Kod (enum)</th>
+              <th>Nazwa polska</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of tags; let i = index">
+              <td class="text-base-content/40 text-xs">{{ i + 1 }}</td>
+              <td><span class="badge badge-ghost font-mono text-xs">{{ t.code }}</span></td>
+              <td class="font-medium">{{ t.name }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+

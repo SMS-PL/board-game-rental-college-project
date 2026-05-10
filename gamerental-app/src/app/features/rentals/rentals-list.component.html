@@ -1,0 +1,84 @@
+<app-navbar></app-navbar>
+<div class="container mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Wypożyczenia</h1>
+    <a routerLink="/rentals/new" class="btn btn-primary">+ Nowe wypożyczenie</a>
+  </div>
+
+  <div *ngIf="successMsg" class="alert alert-success mb-4"><span>{{ successMsg }}</span></div>
+  <div *ngIf="errorMsg" class="alert alert-error mb-4"><span>{{ errorMsg }}</span></div>
+
+  <div class="flex gap-2 mb-4">
+    <button class="btn btn-sm" [class.btn-active]="statusFilter === ''" (click)="setFilter('')">Wszystkie</button>
+    <button class="btn btn-sm btn-warning" [class.btn-active]="statusFilter === 'ACTIVE'" (click)="setFilter('ACTIVE')">Aktywne</button>
+    <button class="btn btn-sm btn-error" [class.btn-active]="statusFilter === 'OVERDUE'" (click)="setFilter('OVERDUE')">Zaległe</button>
+    <button class="btn btn-sm btn-success" [class.btn-active]="statusFilter === 'RETURNED'" (click)="setFilter('RETURNED')">Zwrócone</button>
+  </div>
+
+  <div class="overflow-x-auto rounded-box shadow">
+    <table class="table table-zebra w-full bg-base-100">
+      <thead>
+        <tr><th>Gra / Egz.</th><th>Klient</th><th>Wypożyczono</th><th>Termin</th><th>Status</th><th>Akcje</th></tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="loading">
+          <tr *ngFor="let i of [1,2,3,4,5]">
+            <td><div class="skeleton h-4 w-32"></div></td>
+            <td><div class="skeleton h-4 w-28"></div></td>
+            <td><div class="skeleton h-4 w-20"></div></td>
+            <td><div class="skeleton h-4 w-20"></div></td>
+            <td><div class="skeleton h-5 w-16 rounded-full"></div></td>
+            <td><div class="skeleton h-6 w-12"></div></td>
+          </tr>
+        </ng-container>
+        <ng-container *ngIf="!loading">
+          <tr *ngFor="let r of rentals">
+            <td>
+              <div class="font-semibold">{{ r.gameTitle }}</div>
+              <div class="text-xs text-base-content/50">Egz. #{{ r.copyNumber }}</div>
+            </td>
+            <td>{{ r.clientName }}</td>
+            <td>{{ r.rentedFrom | date:'dd.MM.yyyy' }}</td>
+            <td [class.text-error]="r.status === 'OVERDUE'">{{ r.dueTo | date:'dd.MM.yyyy' }}</td>
+            <td>
+              <span class="badge"
+                [class.badge-warning]="r.status === 'ACTIVE'"
+                [class.badge-error]="r.status === 'OVERDUE'"
+                [class.badge-success]="r.status === 'RETURNED'">
+                {{ statusLabel(r.status) }}
+              </span>
+            </td>
+            <td>
+              <button *ngIf="r.status !== 'RETURNED'" class="btn btn-xs btn-success" (click)="openReturnModal(r.id)">Zwróć</button>
+              <span *ngIf="r.status === 'RETURNED'" class="text-base-content/40 text-xs">—</span>
+            </td>
+          </tr>
+          <tr *ngIf="rentals.length === 0">
+            <td colspan="6" class="text-center text-base-content/50 py-8">Brak wypożyczeń</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Return Modal -->
+<dialog id="returnModal" class="modal">
+  <div class="modal-box w-11/12 max-w-sm">
+    <h3 class="text-xl font-bold mb-1">↩️ Zwrot wypożyczenia</h3>
+    <p class="text-base-content/50 text-sm mb-5">Podaj stan egzemplarza po zwrocie</p>
+    <div class="flex flex-col gap-2 mb-5">
+      <label *ngFor="let c of conditions"
+             class="label cursor-pointer justify-start gap-3 rounded-lg border border-base-300 px-4 py-3 hover:bg-base-200 transition-colors"
+             [class.border-primary]="returnCondition === c.value">
+        <input type="radio" [(ngModel)]="returnCondition" [value]="c.value" name="returnCondition" class="radio radio-primary radio-sm" />
+        <span class="label-text">{{ c.label }}</span>
+      </label>
+    </div>
+    <div class="modal-action">
+      <button class="btn btn-ghost" (click)="closeReturnModal()">Anuluj</button>
+      <button class="btn btn-success" (click)="confirmReturn()">Potwierdź zwrot</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>

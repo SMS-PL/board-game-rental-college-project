@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import sms.pollub.gamerental.game.enums.CopyCondition
 import sms.pollub.gamerental.shared.BaseEntity
 
 @Entity
@@ -30,4 +31,3 @@ class GameCopy(
     @Column(name = "is_available", nullable = false)
     var isAvailable: Boolean = true
 ) : BaseEntity()
-

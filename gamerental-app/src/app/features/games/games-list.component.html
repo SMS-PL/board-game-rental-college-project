@@ -1,0 +1,142 @@
+<app-navbar></app-navbar>
+<div class="container mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Katalog gier</h1>
+    <button class="btn btn-primary" (click)="openAddModal()">+ Dodaj grę</button>
+  </div>
+
+  <div *ngIf="successMsg" class="alert alert-success mb-4"><span>{{ successMsg }}</span></div>
+  <div *ngIf="errorMsg" class="alert alert-error mb-4"><span>{{ errorMsg }}</span></div>
+
+  <div class="form-control mb-4 max-w-sm">
+    <input type="text" [(ngModel)]="search" (ngModelChange)="search = $event"
+           class="input input-bordered" placeholder="Szukaj gry..." />
+  </div>
+
+  <div class="overflow-x-auto rounded-box shadow">
+    <table class="table table-zebra w-full bg-base-100">
+      <thead>
+        <tr><th>Tytuł</th><th>Tagi</th><th>Egzemplarze</th><th>Dodano</th><th>Akcje</th></tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="loading">
+          <tr *ngFor="let i of [1,2,3,4,5]">
+            <td><div class="skeleton h-4 w-40"></div></td>
+            <td><div class="flex gap-1"><div class="skeleton h-5 w-16 rounded-full"></div><div class="skeleton h-5 w-16 rounded-full"></div></div></td>
+            <td><div class="skeleton h-5 w-20 rounded-full"></div></td>
+            <td><div class="skeleton h-4 w-20"></div></td>
+            <td><div class="flex gap-1"><div class="skeleton h-6 w-14"></div><div class="skeleton h-6 w-10"></div></div></td>
+          </tr>
+        </ng-container>
+        <ng-container *ngIf="!loading">
+          <tr *ngFor="let g of filtered">
+            <td>
+              <a [routerLink]="['/games', g.id]" class="link link-primary font-semibold">{{ g.title }}</a>
+              <p *ngIf="g.description" class="text-xs text-base-content/50 mt-0.5 max-w-xs truncate">{{ g.description }}</p>
+            </td>
+            <td>
+              <div class="flex flex-wrap gap-1">
+                <span *ngFor="let tag of g.tags" class="badge badge-ghost badge-sm">{{ tagLabel(tag) }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [class.badge-success]="g.availableCopies > 0" [class.badge-error]="g.availableCopies === 0">
+                {{ g.availableCopies }}/{{ g.totalCopies }} wolne
+              </span>
+            </td>
+            <td class="text-sm text-base-content/60">{{ g.createdAt | date:'dd.MM.yyyy' }}</td>
+            <td>
+              <button class="btn btn-xs btn-outline mr-1" (click)="openEdit(g)">Edytuj</button>
+              <button class="btn btn-xs btn-error" (click)="deleteGame(g.id)">Usuń</button>
+            </td>
+          </tr>
+          <tr *ngIf="filtered.length === 0">
+            <td colspan="5" class="text-center text-base-content/50 py-8">Brak gier — dodaj pierwszą</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Modal -->
+<dialog id="addModal" class="modal">
+  <div class="modal-box w-11/12 max-w-lg">
+    <h3 class="text-xl font-bold mb-1">🎮 Dodaj nową grę</h3>
+    <p class="text-base-content/50 text-sm mb-5">Wypełnij dane gry planszowej</p>
+    <form (ngSubmit)="createGame()">
+      <div class="form-control mb-3">
+        <label class="label pb-1"><span class="label-text font-medium">Tytuł <span class="text-error">*</span></span></label>
+        <input type="text" [(ngModel)]="form.title" name="title" class="input input-bordered w-full" placeholder="np. Catan, Wingspan..." required />
+      </div>
+      <div class="form-control mb-3">
+        <label class="label pb-1"><span class="label-text font-medium">Opis <span class="text-error">*</span></span></label>
+        <textarea [(ngModel)]="form.description" name="description" class="textarea textarea-bordered w-full h-20 resize-none" placeholder="Krótki opis gry..." required></textarea>
+      </div>
+      <div class="form-control mb-3">
+        <label class="label pb-1"><span class="label-text font-medium">Tagi <span class="text-error">*</span></span></label>
+        <div class="flex flex-wrap gap-2">
+          <label *ngFor="let tag of allTags"
+                 class="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors"
+                 [class.border-primary]="isTagSelected(form.tags, tag)"
+                 [class.bg-primary]="isTagSelected(form.tags, tag)"
+                 [class.text-primary-content]="isTagSelected(form.tags, tag)"
+                 [class.border-base-300]="!isTagSelected(form.tags, tag)">
+            <input type="checkbox" class="hidden" [checked]="isTagSelected(form.tags, tag)" (change)="toggleFormTag(tag)" />
+            <span class="text-sm">{{ tagLabels[tag] }}</span>
+          </label>
+        </div>
+      </div>
+      <div class="form-control mb-3">
+        <label class="label pb-1"><span class="label-text font-medium">Liczba egzemplarzy</span></label>
+        <input type="number" [(ngModel)]="form.totalCopies" name="totalCopies" class="input input-bordered w-full" min="0" max="99" />
+        <label class="label pt-1"><span class="label-text-alt text-base-content/40">Ile fizycznych kopii dodać do wypożyczalni</span></label>
+      </div>
+      <div class="divider my-2"></div>
+      <div class="modal-action mt-0">
+        <button type="button" class="btn btn-ghost" (click)="closeModal('addModal')">Anuluj</button>
+        <button type="submit" class="btn btn-primary">Dodaj grę</button>
+      </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<!-- Edit Modal -->
+<dialog id="editModal" class="modal">
+  <div class="modal-box w-11/12 max-w-lg">
+    <h3 class="text-xl font-bold mb-1">✏️ Edytuj grę</h3>
+    <p class="text-base-content/50 text-sm mb-5">Zmień dane wybranej gry (liczba egzemplarzy — w szczegółach gry)</p>
+    <form (ngSubmit)="updateGame()">
+      <div class="form-control mb-3">
+        <label class="label pb-1"><span class="label-text font-medium">Tytuł <span class="text-error">*</span></span></label>
+        <input type="text" [(ngModel)]="editForm.title" name="title" class="input input-bordered w-full" required />
+      </div>
+      <div class="form-control mb-3">
+        <label class="label pb-1"><span class="label-text font-medium">Opis <span class="text-error">*</span></span></label>
+        <textarea [(ngModel)]="editForm.description" name="description" class="textarea textarea-bordered w-full h-20 resize-none" required></textarea>
+      </div>
+      <div class="form-control mb-3">
+        <label class="label pb-1"><span class="label-text font-medium">Tagi <span class="text-error">*</span></span></label>
+        <div class="flex flex-wrap gap-2">
+          <label *ngFor="let tag of allTags"
+                 class="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors"
+                 [class.border-primary]="isTagSelected(editForm.tags, tag)"
+                 [class.bg-primary]="isTagSelected(editForm.tags, tag)"
+                 [class.text-primary-content]="isTagSelected(editForm.tags, tag)"
+                 [class.border-base-300]="!isTagSelected(editForm.tags, tag)">
+            <input type="checkbox" class="hidden" [checked]="isTagSelected(editForm.tags, tag)" (change)="toggleEditTag(tag)" />
+            <span class="text-sm">{{ tagLabels[tag] }}</span>
+          </label>
+        </div>
+      </div>
+      <div class="divider my-2"></div>
+      <div class="modal-action mt-0">
+        <button type="button" class="btn btn-ghost" (click)="closeModal('editModal')">Anuluj</button>
+        <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+      </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+

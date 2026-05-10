@@ -1,0 +1,16 @@
+<div class="navbar bg-base-100 shadow-md px-4">
+  <div class="flex-1">
+    <a routerLink="/" class="btn btn-ghost text-xl font-bold">🎲 Wypożyczalnia Gier</a>
+  </div>
+  <div class="flex-none">
+    <ul class="menu menu-horizontal px-1 gap-1">
+      <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Dashboard</a></li>
+      <li><a routerLink="/games" routerLinkActive="active">Gry</a></li>
+      <li><a routerLink="/customers" routerLinkActive="active">Klienci</a></li>
+      <li><a routerLink="/rentals" routerLinkActive="active">Wypożyczenia</a></li>
+      <li><a routerLink="/dictionaries" routerLinkActive="active">Słowniki</a></li>
+    </ul>
+    <button class="btn btn-ghost btn-sm ml-2" (click)="logout()">Wyloguj</button>
+  </div>
+</div>
+

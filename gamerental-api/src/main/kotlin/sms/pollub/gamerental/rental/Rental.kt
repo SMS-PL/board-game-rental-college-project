@@ -11,8 +11,9 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import sms.pollub.gamerental.client.Client
-import sms.pollub.gamerental.game.CopyCondition
+import sms.pollub.gamerental.game.enums.CopyCondition
 import sms.pollub.gamerental.game.GameCopy
+import sms.pollub.gamerental.rental.enums.RentalStatus
 import sms.pollub.gamerental.shared.BaseEntity
 import java.time.LocalDate
 
@@ -46,4 +47,3 @@ class Rental(
     @Column(columnDefinition = "TEXT")
     var notes: String? = null
 ) : BaseEntity()
-

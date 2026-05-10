@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import sms.pollub.gamerental.auth.JwtAuthenticationFilter
+import sms.pollub.gamerental.auth.service.JwtAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity

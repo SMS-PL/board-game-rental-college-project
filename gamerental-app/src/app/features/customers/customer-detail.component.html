@@ -1,0 +1,77 @@
+<app-navbar></app-navbar>
+<div class="container mx-auto p-6">
+  <a routerLink="/customers" class="btn btn-ghost btn-sm mb-4">← Wróć do listy</a>
+
+  <div *ngIf="!customer" class="flex justify-center mt-20">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+
+  <ng-container *ngIf="customer">
+    <div class="card bg-base-100 shadow-xl mb-6">
+      <div class="card-body">
+        <h1 class="text-3xl font-bold">{{ customer.firstName }} {{ customer.lastName }}</h1>
+        <div class="divider"></div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+          <div>
+            <p class="text-base-content/60">Email</p>
+            <p class="font-semibold">{{ customer.email }}</p>
+          </div>
+          <div>
+            <p class="text-base-content/60">Telefon</p>
+            <p class="font-semibold">{{ customer.phone ?? '—' }}</p>
+          </div>
+          <div>
+            <p class="text-base-content/60">Klient od</p>
+            <p class="font-semibold">{{ customer.createdAt | date:'dd.MM.yyyy' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">Historia wypożyczeń</h2>
+        <div class="overflow-x-auto mt-4">
+          <table class="table table-zebra w-full">
+            <thead>
+              <tr><th>ID</th><th>Gra</th><th>Wypożyczono</th><th>Termin zwrotu</th><th>Zwrócono</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <ng-container *ngIf="loadingRentals">
+                <tr *ngFor="let i of [1,2,3]">
+                  <td><div class="skeleton h-4 w-6"></div></td>
+                  <td><div class="skeleton h-4 w-32"></div></td>
+                  <td><div class="skeleton h-4 w-20"></div></td>
+                  <td><div class="skeleton h-4 w-20"></div></td>
+                  <td><div class="skeleton h-4 w-20"></div></td>
+                  <td><div class="skeleton h-5 w-16 rounded-full"></div></td>
+                </tr>
+              </ng-container>
+              <ng-container *ngIf="!loadingRentals">
+                <tr *ngFor="let r of rentals">
+                  <td>{{ r.id }}</td>
+                  <td>{{ r.gameTitle }}</td>
+                  <td>{{ r.rentedFrom | date:'dd.MM.yyyy' }}</td>
+                  <td>{{ r.dueTo | date:'dd.MM.yyyy' }}</td>
+                  <td>{{ r.returnedAt ? (r.returnedAt | date:'dd.MM.yyyy') : '—' }}</td>
+                  <td>
+                    <span class="badge"
+                      [class.badge-success]="r.status === 'RETURNED'"
+                      [class.badge-warning]="r.status === 'ACTIVE'"
+                      [class.badge-error]="r.status === 'OVERDUE'">
+                      {{ statusLabel(r.status) }}
+                    </span>
+                  </td>
+                </tr>
+                <tr *ngIf="rentals.length === 0">
+                  <td colspan="6" class="text-center text-base-content/50 py-8">Brak wypożyczeń</td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+

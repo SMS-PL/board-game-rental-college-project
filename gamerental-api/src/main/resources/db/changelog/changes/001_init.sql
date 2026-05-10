@@ -1,6 +1,6 @@
---liquibase formatted sql
+-- liquibase formatted sql
 
---changeset system:001-init
+-- changeset system:001-init
 
 CREATE TABLE app_users (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
