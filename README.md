@@ -132,14 +132,3 @@ board-game-rental-college-project/
 ```
 
 ---
-
-## Fragmenty wygenerowane przez AI
-
-Znaczna część kodu została wygenerowana lub zrefaktoryzowana przy pomocy GitHub Copilot (GPT-4.1) w ramach sesji konwersacyjnej.
-
-Zakres modyfikacji AI:
-- Pełna analiza i naprawa niespójności między frontendem a backendem (modele DTO, URL endpointów, typy ID)
-- Przepisanie wszystkich serwisów Angular (`auth`, `customer`, `game`, `rental`, `copy`, `dict`, `stats`)
-- Przepisanie modeli (`game.model.ts`, `rental.model.ts`, `customer.model.ts`, `copy.model.ts`)
-- Naprawa komponentów feature (`games-list`, `game-detail`, `rentals-list`, `create-rental`, `customers-list`, `customer-detail`, `dictionaries`)
-- Konfiguracja Kubernetes (wszystkie manifesty YAML, Dockerfile backendu)
