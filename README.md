@@ -132,3 +132,24 @@ board-game-rental-college-project/
 ```
 
 ---
+
+## Użycie AI przy realizacji projektu
+1. rozmowa z Claude w celu utworzenia Design Documents https://claude.ai/share/b33a1c5b-f3fb-461d-9b89-48964d073059
+2. Prompty do agenta Copilot:
+- backend: 
+"Zapoznaj sie z technical spec.
+Zaimplementuj backend
+Jest jedna różnica względem pliku - użyj liqubase a nie flyway.
+Utworzyłem baze postgresa: rental-game-db
+login XXXX haslo XXXX."
+- frontend:
+  "/Users/michalt/github_projects/board-game-rental-college-project/TECHNICAL_SPEC.md
+zapoznaj sie z tym plikiem. Backend jest w trakcie implementacji.
+ty teraz zaimplementuj frontend"
+3. Ręczne zmiany w projekcie, bez użycia AI lub korzystając tylko z autocomplete
+
+PLIKI WYGENEROWANE PRZEZ AI:
+[KUBERNETES_GUIDE.md](https://github.com/user-attachments/files/27793028/KUBERNETES_GUIDE.md)
+
+[TECHNICAL_SPEC.md](https://github.com/user-attachments/files/27793041/TECHNICAL_SPEC.md)
+
