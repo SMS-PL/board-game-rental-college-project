@@ -49,15 +49,7 @@ spec:
               until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$PGUSER"; do
                 echo "Czekam na PostgreSQL..."; sleep 2;
               done
-              psql "postgresql://$PGUSER:$PGPASSWORD@$DB_HOST:$DB_PORT/$DB_NAME" <<'SQL'
-              CREATE TABLE IF NOT EXISTS app_users (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), username VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT NOW());
-              CREATE TABLE IF NOT EXISTS games (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), title VARCHAR(255) NOT NULL, description TEXT NOT NULL DEFAULT '', total_copies INT NOT NULL DEFAULT 0, created_at TIMESTAMP NOT NULL DEFAULT NOW());
-              CREATE TABLE IF NOT EXISTS game_tags (game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE, tag VARCHAR(50) NOT NULL, PRIMARY KEY (game_id, tag));
-              CREATE TABLE IF NOT EXISTS game_copies (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE, copy_number INT NOT NULL, condition VARCHAR(20) NOT NULL DEFAULT 'NEW', is_available BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMP NOT NULL DEFAULT NOW(), UNIQUE (game_id, copy_number));
-              CREATE TABLE IF NOT EXISTS clients (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), first_name VARCHAR(255) NOT NULL, last_name VARCHAR(255) NOT NULL, phone VARCHAR(50), email VARCHAR(255), created_at TIMESTAMP NOT NULL DEFAULT NOW());
-              CREATE TABLE IF NOT EXISTS rentals (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), game_copy_id UUID NOT NULL REFERENCES game_copies(id), client_id UUID NOT NULL REFERENCES clients(id), rented_from DATE NOT NULL, due_to DATE NOT NULL, returned_at DATE, condition_on_return VARCHAR(20), status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', notes TEXT, created_at TIMESTAMP NOT NULL DEFAULT NOW());
-              SQL
-              echo "Migracja zakończona."
+              echo "Postgres jest gotowy."
       containers:
         - name: rental-backend
           image: rental-backend:latest
