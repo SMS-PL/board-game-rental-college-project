@@ -40,5 +40,5 @@ spec:
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
-            claimName: postgres-pvc
+            claimName: postgres-pvc #wskazuje na Persistnet Volume Claim w pvc.yaml
 

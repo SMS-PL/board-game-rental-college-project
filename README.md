@@ -148,8 +148,3 @@ zapoznaj sie z tym plikiem. Backend jest w trakcie implementacji.
 ty teraz zaimplementuj frontend"
 3. Ręczne zmiany w projekcie, bez użycia AI lub korzystając tylko z autocomplete
 
-PLIKI WYGENEROWANE PRZEZ AI:
-[KUBERNETES_GUIDE.md](https://github.com/user-attachments/files/27793028/KUBERNETES_GUIDE.md)
-
-[TECHNICAL_SPEC.md](https://github.com/user-attachments/files/27793041/TECHNICAL_SPEC.md)
-

@@ -5,6 +5,11 @@ metadata:
   namespace: rental-games
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app: rental-backend
@@ -14,7 +19,7 @@ spec:
         app: rental-backend
     spec:
       initContainers:
-        - name: db-migrate
+        - name: wait-for-postgres
           image: postgres:16-alpine
           env:
             - name: DB_HOST
@@ -27,21 +32,11 @@ spec:
                 configMapKeyRef:
                   name: backend-config
                   key: DB_PORT
-            - name: DB_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: backend-config
-                  key: DB_NAME
             - name: PGUSER
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_USER
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
           command:
             - sh
             - -c
@@ -49,9 +44,15 @@ spec:
               until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$PGUSER"; do
                 echo "Czekam na PostgreSQL..."; sleep 2;
               done
-              echo "Postgres jest gotowy."
       containers:
         - name: rental-backend
+          resources:
+            requests:
+              memory: "256Mi"  # ile K8s rezerwuje dla Poda przy schedulingu
+              cpu: "250m"       # 250 milicores = 1/4 rdzenia
+            limits:
+              memory: "512Mi"  # maksimum — przekroczenie = OOMKill
+              cpu: "500m"
           image: rental-backend:latest
           imagePullPolicy: Never
           ports:
